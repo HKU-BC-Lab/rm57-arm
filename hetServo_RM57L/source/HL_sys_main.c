@@ -73,7 +73,10 @@
 
 /*----------------------------------------------------------------------------*/
 /* Choose timer */
-#define PMU_Cycle true
+#define PMU_Cycle false
+#define DEBUG true
+#define TESTSPEED false
+
 
 /* Variables for Timing */
 volatile unsigned int loop_count_prep, loop_count_prep_max=1;
@@ -86,12 +89,7 @@ volatile unsigned int loop_count, loop_count_max=1;
 
 
 /*----------------------------------------------------------------------------*/
-/* Macros */
-#define ECAP2 true
-
-#define DEBUG true
-#define TESTSPEED false
-
+#define ECAP2 false
 #define f_HCLK (float) 330.0 //f in [MHz], HCLK (depends on device setup)
 #define PI (double) 3.1415926535897932
 #define FACTOR (float) 10.0 //0.01
@@ -114,15 +112,15 @@ typedef struct pwmSig
 static const uint32 s_het1pwmPolarity[8U] = {3U, 3U, 3U, 3U, 3U, 3U, 3U, 3U};
 
 /* Variables for main function */
-float currentPos[6]; //current Cartesian position after interpolation
-uint16 form = 1;     //choosing interpolation method. 1 stands for linear, and 2 stands for cubic.
-uint16 curIndex = 0; //current start frame index
-float curtime, tElapsed, reltime, duration; //in [ms]
+static uint16 form = 1;     //choosing interpolation method. 1 stands for linear, and 2 stands for cubic.
+volatile float currentPos[6]; //current Cartesian position after interpolation
+volatile uint16 curIndex = 0; //current start frame index
+volatile float curtime, tElapsed, reltime, duration; //in [ms]
 
 /* Designated time breaks and path points at corresp. time points */
-float via_breaks[11] = {0*FACTOR, 12*FACTOR, 24*FACTOR, 36*FACTOR, 48*FACTOR, 50*FACTOR, 62*FACTOR, 74*FACTOR, 86*FACTOR, 98*FACTOR, 120*FACTOR};
+static float via_breaks[11] = {0*FACTOR, 12*FACTOR, 24*FACTOR, 36*FACTOR, 48*FACTOR, 60*FACTOR, 72*FACTOR, 84*FACTOR, 96*FACTOR, 108*FACTOR, 120*FACTOR};
 //float via_breaks[11] = {0, 12, 24, 36, 48, 50, 62, 74, 86, 98, 120};
-float via_frames[6][11] =
+static float via_frames[6][11] =
 {
     {0.14  , 0.140 , 0.1400 , 0.1400 , 0.1400 , 0.1400 , 0.1400 , 0.1400 , 0.1400 , 0.1400 , 0.1400   } ,
     {0     , 0.11  , 0.11   , 0      , -0.11  , -0.11  , 0      , 0.11   , 0.11   , 0      , -0.11000 } ,
@@ -144,8 +142,10 @@ void setPwmPulse(hetRAMBASE_t * hetRAM, const uint32 pwm, const pwmSIG_t * sig);
 void setJoints(hetRAMBASE_t * hetRAM, const double * q, const int n);
 void solveJoints0(double * q, const double * pos, const double * rpy);
 
+#if PMU_Cycle
 float tic(void);
 float toc(const float timerVal);
+#endif //PMU_Cycle
 
 
 /*----------------------------------------------------------------------------*/
@@ -203,7 +203,12 @@ void main(void)
 #endif //PMU_Cycle
 
 	/* Run forever */
+#if PMU_Cycle
 	while (true)
+#else
+    //int curIndex;
+    for (curIndex = 0; curIndex < 11; ++curIndex)
+#endif //PMU_Cycle
     {
         /* Get t */
 #if PMU_Cycle
@@ -211,21 +216,32 @@ void main(void)
         printf("# Current time is %fus\n", curtime);
 #endif //PMU_Cycle
 
+#if PMU_Cycle
         if (curIndex < 11 && via_breaks[curIndex+1] <= curtime)
         {
             curIndex = curIndex+1;
             duration = via_breaks[curIndex+1] - via_breaks[curIndex];
         }
+        else if (curIndex >= 11)
+        {
+            curIndex = 0;
+            duration = via_breaks[1] - via_breaks[0];
+        }
 
         getCurrentPos(pos, rpy, form);
+#else
+        curtime = via_breaks[curIndex];
+        duration = via_breaks[curIndex+1] - via_breaks[curIndex];
+        getCurrentPos(pos, rpy, form);
+#endif //PMU_Cycle
 
 #if DEBUG
         printf("%-20s%-20s%-20s%-20s%-20s%-20s\n",
-                "pos[x]", "pos[y]", "pos[z]", "roll", "pitch", "yaw");
+                "pos.x", "pos.y", "pos.z", "roll [deg]", "pitch [deg]", "yaw [deg]");
         /*printf("%-20.2f%-20.2f%-20.2f%-20.2f%-20.2f%-20.2f\n", , curIndex, duration);*/
         int i;
         for (i = 0; i < 3; ++i) { printf("%-20.2f", *(pos+i)); }
-        for (i = 0; i < 3; ++i) { printf("%-20.2f", *(rpy+i)); }
+        for (i = 0; i < 3; ++i) { printf("%-20.2f", *(rpy+i) * (180./PI)); }
         printf("\n");
 #endif //DEBUG
 
@@ -253,6 +269,11 @@ void main(void)
         setJoints(hetRAM1, q, 6);
 
     }
+
+#if !PMU_Cycle
+    /* Run forever */
+    while (1);
+#endif
 
 /* USER CODE END */
 }
@@ -434,18 +455,20 @@ void setJoints(hetRAMBASE_t * hetRAM, const double * q, const int n)
     for (i = 0; i < n; ++i)
     {
 #if DEBUG
-        printf("# Set q[%d]:=%.2f\n", i, *(q+i));
+        printf("# Set q[%d]:=%.2f[deg]\n", i, *(q+i) *(180./PI));
 #endif
         double val = *(q + i);
-        if (val <= PI/2. && val >= -PI/2.)
-        {
-            genServoPwm(sig, *(q + i));
-            setPwmPulse(hetRAM, (uint32)(pwm0+i), sig);
-        }
-        else
-        {
-            printf("# %d.th DOF (%.2f in degree) is out of range.\n", i, val*180./PI);
-        }
+        genServoPwm(sig, *(q + i));
+        setPwmPulse(hetRAM, (uint32)(pwm0+i), sig);
+        // if (val <= PI/2. && val >= -PI/2.)
+        // {
+        //     genServoPwm(sig, *(q + i));
+        //     setPwmPulse(hetRAM, (uint32)(pwm0+i), sig);
+        // }
+        // else
+        // {
+        //     printf("# %d.th DOF (%.2f in degree) is out of range.\n", i, val*180./PI);
+        // }
     }
 
 }
@@ -619,6 +642,7 @@ void solveJoints0(double * q, const double * pos, const double * rpy)
 *   Starts stopwatch timer and gets the current time
 *   NOTE: All 3 event counters 0-2 are reset
 */
+#if PMU_Cycle
 float tic(void)
 {
     uint32 cycles;
@@ -626,6 +650,7 @@ float tic(void)
     cycles = _pmuGetCycleCount_();
     return (float)cycles / (f_HCLK);
 }
+#endif //PMU_Cycle
 
 
 /** @fn float toc(const float timerVal)
@@ -635,6 +660,7 @@ float tic(void)
 *
 *   Reads elapsed time from stopwatch
 */
+#if PMU_Cycle
 float toc(const float timerVal)
 {
     uint32 cycles;
@@ -644,6 +670,7 @@ float toc(const float timerVal)
     tElapsed = (float)cycles / (f_HCLK) - timerVal;
     return tElapsed;
 }
+#endif //PMU_Cycle
 
 
 /* USER CODE END */
