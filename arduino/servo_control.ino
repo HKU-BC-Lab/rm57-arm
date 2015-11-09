@@ -1,5 +1,5 @@
 #include <Servo.h>
-#define test 0
+#define test 1
 const double pi=3.1415926;
 
 Servo servo[6];
