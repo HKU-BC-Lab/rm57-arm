@@ -19,6 +19,7 @@ makefile
 *.project
 *.index
 *.pdom
+*.prefs
 
 # Packages #
 ############
