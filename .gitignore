@@ -15,6 +15,10 @@ makefile
 *.launch
 .metadata*
 *.out
+*.log
+*.project
+*.index
+*.pdom
 
 # Packages #
 ############
