@@ -1,5 +1,5 @@
 #include <Servo.h>
-#define test 1
+#define test 0
 const double pi=3.1415926;
 
 Servo servo[6];
@@ -32,9 +32,8 @@ void testJoint(int num);
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-
   for(i=0;i<6;i++)
-    servo[i].attach(i+8);      //servos attached to pin 8 9 10 11 12 13
+  servo[i].attach(i+8);      //servos attached to pin 8 9 10 11 12 13
 
   t = millis();
   currentIndex=0;
@@ -76,6 +75,9 @@ void loop() {
    Serial.println(millis());
 
 }
+
+
+
 
 
 
@@ -168,67 +170,67 @@ void solveJoints(float x,float y,float z,float roll,float pitch, float yaw) {
 
 }
 
-void writeJoints(float q0,float q1,float q2,float q3,float q4,float q5)
-{
-    if (q0<=pi/2 && q0>=-pi/2)
-        { servo[0].write(q0/pi*180+90);
-        #ifdef test
-        Serial.print("q0=");Serial.print(q0);Serial.print(" rad, and is written as ");Serial.println(q0/pi*180+90);
-        #endif
-        }
-    else {
-        Serial.print("q0 is out of range, q0= ");
-        Serial.println(q0);}
+void writeJoints(float q0,float q1,float q2,float q3,float q4,float q5) {
 
-    if (q1<=pi/2 && q1>=-pi/2)
-        {servo[1].write(90-q1/pi*180);
-        #ifdef test
-        Serial.print(" q1=");Serial.print(q1);Serial.print(" rad and is written as ");Serial.println(90-q1/pi*180);
-        #endif
-        }
-    else {
-        Serial.print("q1 is out of range, q1= ");
-        Serial.println(q1);}
+           if (q0<=pi/2 && q0>=-pi/2)
+                { servo[0].write(q0/pi*180+90);
+                #ifdef test
+                Serial.print("q0=");Serial.print(q0);Serial.print(" rad, and is written as ");Serial.println(q0/pi*180+90);
+                #endif
+                }
+           else {
+                Serial.print("q0 is out of range, q0= ");
+                Serial.println(q0);}
 
-    if (q2<=pi && q2>=0)
-        {servo[2].write(90+q2/pi*180);
-        #ifdef test
-        Serial.print(" q2=");Serial.print(q2);Serial.print(" rad and is written as ");Serial.println(90+q2/pi*180);
-        #endif
-        }
-    else {
-        Serial.print("q2 is out of range, q2= ");
-        Serial.println(q2);}
+           if (q1<=pi/2 && q1>=-pi/2)
+                {servo[1].write(90-q1/pi*180);
+                #ifdef test
+                Serial.print(" q1=");Serial.print(q1);Serial.print(" rad and is written as ");Serial.println(90-q1/pi*180);
+                #endif
+                }
+           else {
+                Serial.print("q1 is out of range, q1= ");
+                Serial.println(q1);}
 
-    if (q3<=pi && q3>=-pi)
-        {servo[3].write(q3/pi*180+90);
-        #ifdef test
-        Serial.print("  q3=");Serial.print(q3);Serial.print(" rad and is written as ");Serial.println(q3/pi*180+90);
-        #endif
-        }
-    else {
-        Serial.print("q3 is out of range, q3= ");
-        Serial.println(q3);}
+           if (q2<=pi && q2>=0)
+                {servo[2].write(90+q2/pi*180);
+                #ifdef test
+                Serial.print(" q2=");Serial.print(q2);Serial.print(" rad and is written as ");Serial.println(90+q2/pi*180);
+                #endif
+                }
+           else {
+                Serial.print("q2 is out of range, q2= ");
+                Serial.println(q2);}
 
-    if (q4<=pi && q4>=-pi)
-        {servo[4].write(q4/pi*180+90);
-        #ifdef test
-        Serial.print("   q4=");Serial.print(q4);Serial.print(" rad and is written as ");Serial.println(q4/pi*180+90);
-        #endif
-        }
-    else {
-        Serial.print("q4 is out of range, q4= ");
-        Serial.println(q4);}
+           if (q3<=pi && q3>=-pi)
+                {servo[3].write(q3/pi*180+90);
+                #ifdef test
+                Serial.print("  q3=");Serial.print(q3);Serial.print(" rad and is written as ");Serial.println(q3/pi*180+90);
+                #endif
+                }
+           else {
+                Serial.print("q3 is out of range, q3= ");
+                Serial.println(q3);}
 
-    if (q5<=pi && q5>=-pi)
-        {servo[5].write(q5/pi*180+90);
-        #ifdef test
-        Serial.print("    q5=");Serial.print(q5);Serial.print(" rad and is written as ");Serial.println(q5/pi*180+90);
-        #endif
-        }
-    else {
-        Serial.print("q5 is out of range, q5= ");
-        Serial.println(q5);}
+           if (q4<=pi && q4>=-pi)
+                {servo[4].write(q4/pi*180+90);
+                #ifdef test
+                Serial.print("   q4=");Serial.print(q4);Serial.print(" rad and is written as ");Serial.println(q4/pi*180+90);
+                #endif
+                }
+           else {
+                Serial.print("q4 is out of range, q4= ");
+                Serial.println(q4);}
+
+           if (q5<=pi && q5>=-pi)
+                {servo[5].write(q5/pi*180+90);
+                #ifdef test
+                Serial.print("    q5=");Serial.print(q5);Serial.print(" rad and is written as ");Serial.println(q5/pi*180+90);
+                #endif
+                }
+           else {
+                Serial.print("q5 is out of range, q5= ");
+                Serial.println(q5);}
 }
 
 void getCurrentPos(char form){
@@ -262,7 +264,6 @@ void rotmat2rpy(float *R[3]){
   p=  atan2(-R[2][0],sqrt(R[2][1]*R[2][1] + R[2][2]*R[2][2]));
   y=  atan2(R[1][0],R[0][0]);
 }
-
 
 void testJoint(int num){
       float tmp[11]={0,-pi/4,-pi/2,-pi/4,0,pi/4,pi/2,pi/4,0,-pi/4,-pi/2};
@@ -300,4 +301,3 @@ void testJoint(int num){
            }
 
 }
-
