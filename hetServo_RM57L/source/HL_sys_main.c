@@ -89,16 +89,7 @@ volatile unsigned int loop_count, loop_count_max=1;
 
 
 /*----------------------------------------------------------------------------*/
-<<<<<<< HEAD
 #define ECAP2 false
-=======
-/* Macros */
-#define ECAP2 true
-
-#define DEBUG true
-#define TESTSPEED false
-
->>>>>>> 7fd858837977907db1efe7a59af5856b655eb3b1
 #define f_HCLK (float) 330.0 //f in [MHz], HCLK (depends on device setup)
 #define PI (double) 3.1415926535897932
 #define FACTOR (float) 10.0 //0.01
