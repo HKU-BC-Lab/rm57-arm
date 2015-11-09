@@ -13,6 +13,8 @@ makefile
 *.map
 *.mk
 *.launch
+.metadata*
+*.out
 
 # Packages #
 ############
