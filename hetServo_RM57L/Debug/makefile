@@ -155,7 +155,7 @@ all: hetServo_RM57L.out
 hetServo_RM57L.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: ARM Linker'
-	"D:/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.6/bin/armcl" -mv7R5 --code_state=32 --float_support=VFPv3D16 --abi=eabi -me -g --diag_warning=225 --display_error_number --diag_wrap=off --enum_type=packed -z -m"hetServo_RM57L.map" --heap_size=0x800 --stack_size=0x800 -i"D:/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.6/lib" -i"D:/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.6/include" --reread_libs --warn_sections --diag_wrap=off --display_error_number --xml_link_info="hetServo_RM57L_linkInfo.xml" --rom_model -o "hetServo_RM57L.out" $(ORDERED_OBJS)
+	"D:/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.6/bin/armcl" -mv7R5 --code_state=32 --float_support=VFPv3D16 --abi=eabi -me -g --display_error_number --diag_warning=225 --diag_wrap=off --enum_type=packed -z -m"hetServo_RM57L.map" --heap_size=0x800 --stack_size=0x800 -i"D:/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.6/lib" -i"D:/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.6/include" --reread_libs --warn_sections --display_error_number --diag_wrap=off --xml_link_info="hetServo_RM57L_linkInfo.xml" --rom_model -o "hetServo_RM57L.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
