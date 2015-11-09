@@ -73,7 +73,10 @@
 
 /*----------------------------------------------------------------------------*/
 /* Choose timer */
-#define PMU_Cycle true
+#define PMU_Cycle false
+#define DEBUG true
+#define TESTSPEED false
+
 
 /* Variables for Timing */
 volatile unsigned int loop_count_prep, loop_count_prep_max=1;
@@ -86,12 +89,7 @@ volatile unsigned int loop_count, loop_count_max=1;
 
 
 /*----------------------------------------------------------------------------*/
-/* Macros */
 #define ECAP2 false
-
-#define DEBUG false
-#define TESTSPEED false
-
 #define f_HCLK (float) 330.0 //f in [MHz], HCLK (depends on device setup)
 #define PI (double) 3.1415926535897932
 #define FACTOR (float) 10.0 //0.01
@@ -120,7 +118,7 @@ volatile uint16 curIndex = 0; //current start frame index
 volatile float curtime, tElapsed, reltime, duration; //in [ms]
 
 /* Designated time breaks and path points at corresp. time points */
-static float via_breaks[11] = {0*FACTOR, 12*FACTOR, 24*FACTOR, 36*FACTOR, 48*FACTOR, 50*FACTOR, 62*FACTOR, 74*FACTOR, 86*FACTOR, 98*FACTOR, 120*FACTOR};
+static float via_breaks[11] = {0*FACTOR, 12*FACTOR, 24*FACTOR, 36*FACTOR, 48*FACTOR, 60*FACTOR, 72*FACTOR, 84*FACTOR, 96*FACTOR, 108*FACTOR, 120*FACTOR};
 //float via_breaks[11] = {0, 12, 24, 36, 48, 50, 62, 74, 86, 98, 120};
 static float via_frames[6][11] =
 {
@@ -239,11 +237,11 @@ void main(void)
 
 #if DEBUG
         printf("%-20s%-20s%-20s%-20s%-20s%-20s\n",
-                "pos[x]", "pos[y]", "pos[z]", "roll", "pitch", "yaw");
+                "pos.x", "pos.y", "pos.z", "roll [deg]", "pitch [deg]", "yaw [deg]");
         /*printf("%-20.2f%-20.2f%-20.2f%-20.2f%-20.2f%-20.2f\n", , curIndex, duration);*/
         int i;
         for (i = 0; i < 3; ++i) { printf("%-20.2f", *(pos+i)); }
-        for (i = 0; i < 3; ++i) { printf("%-20.2f", *(rpy+i)); }
+        for (i = 0; i < 3; ++i) { printf("%-20.2f", *(rpy+i) * (180./PI)); }
         printf("\n");
 #endif //DEBUG
 
@@ -457,7 +455,7 @@ void setJoints(hetRAMBASE_t * hetRAM, const double * q, const int n)
     for (i = 0; i < n; ++i)
     {
 #if DEBUG
-        printf("# Set q[%d]:=%.2f\n", i, *(q+i));
+        printf("# Set q[%d]:=%.2f[deg]\n", i, *(q+i) *(180./PI));
 #endif
         double val = *(q + i);
         genServoPwm(sig, *(q + i));
