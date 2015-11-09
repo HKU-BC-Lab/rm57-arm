@@ -12,6 +12,7 @@ makefile
 *.xml
 *.map
 *.mk
+*.launch
 
 # Packages #
 ############
